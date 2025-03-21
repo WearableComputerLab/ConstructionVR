@@ -2302,6 +2302,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300310, guid: 5b68cf6a61d89c349a292306f5c8eebc, type: 3}
+--- !u!1 &452461561
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 452461562}
+  m_Layer: 0
+  m_Name: DrillingPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &452461562
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452461561}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.06, y: 0, z: 0.893}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &457814329 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8382273037282299130, guid: 1193ecaa2af6d7949b9c436c26a1b6d1, type: 3}
@@ -2800,6 +2831,64 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300442, guid: 5b68cf6a61d89c349a292306f5c8eebc, type: 3}
+--- !u!1 &634090889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 634090891}
+  - component: {fileID: 634090890}
+  m_Layer: 0
+  m_Name: PM25Spray
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &634090890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 634090889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15b27932956f10e47ab9eec8fa83088a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particlePrefab: {fileID: 216135995}
+  particleCount: 300
+  particleSize: 0.05
+  drillingPoint: {fileID: 452461562}
+  sprayForce: 0.5
+  emissionDuration: 5
+  windVelocity: {x: 0, y: 0, z: 0}
+  diffusionCoefficient: 0.1
+  gravityStrength: 0.02
+  movementSpeedMultiplier: 0.00001
+  lowDensityColor: {r: 1, g: 1, b: 1, a: 0.2}
+  highDensityColor: {r: 0, g: 0, b: 0, a: 0.9}
+  densityCheckRadius: 0.2
+  maxDensity: 20
+--- !u!4 &634090891
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 634090889}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.7992337, y: -1.5775669, z: 4.437417}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &636098133 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8382273037282299092, guid: 1193ecaa2af6d7949b9c436c26a1b6d1, type: 3}
@@ -5114,7 +5203,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1198571738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5135,7 +5224,7 @@ MonoBehaviour:
   windVelocity: {x: 0.1, y: 0, z: 0}
   diffusionCoefficient: 0.01
   gravityStrength: 0.01
-  movementSpeed: 0.001
+  movementSpeed: 0.0001
   mistMaterial: {fileID: 2100000, guid: 9827083418370bd4383a7507ca039547, type: 2}
   densityRadius: 0.2
   maxDensity: 20
@@ -6435,6 +6524,64 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300092, guid: 5b68cf6a61d89c349a292306f5c8eebc, type: 3}
+--- !u!1 &1487760301
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1487760303}
+  - component: {fileID: 1487760302}
+  m_Layer: 0
+  m_Name: PM25PhysicsBurst
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1487760302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1487760301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b05f25c0652ba0a44a933a9d11eaf012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particlePrefab: {fileID: 216135995}
+  particleCount: 500
+  particleSize: 0.01
+  drillingPoint: {fileID: 452461562}
+  emissionDuration: 2
+  initialUpwardVelocity: {x: 0, y: 3, z: 0}
+  windVelocity: {x: 0.2, y: 0, z: 0}
+  diffusionCoefficient: 0.1
+  gravityStrength: 0.2
+  movementSpeedMultiplier: 0.1
+  lowDensityColor: {r: 1, g: 1, b: 1, a: 0.2}
+  highDensityColor: {r: 1, g: 0.003144443, b: 0.003144443, a: 0.9}
+  densityCheckRadius: 0.1
+  maxDensity: 15
+--- !u!4 &1487760303
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1487760301}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.42429566, y: 1.7793399, z: 8.049942}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1491500711 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8382273037282296642, guid: 1193ecaa2af6d7949b9c436c26a1b6d1, type: 3}
@@ -6582,6 +6729,65 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300300, guid: 5b68cf6a61d89c349a292306f5c8eebc, type: 3}
+--- !u!1 &1505329809
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1505329811}
+  - component: {fileID: 1505329810}
+  m_Layer: 0
+  m_Name: PM25BurstSpray
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1505329810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505329809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67950929e64f4be449c51c1f15a62416, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particlePrefab: {fileID: 216135995}
+  particleCount: 500
+  particleSize: 0.05
+  drillingPoint: {fileID: 452461562}
+  sprayUpwardForce: 1.5
+  burstForce: 0.5
+  emissionDuration: 3
+  windVelocity: {x: 0.1, y: 0, z: 0}
+  diffusionCoefficient: 0.05
+  gravityStrength: 0.05
+  movementSpeedMultiplier: 0.00001
+  lowDensityColor: {r: 1, g: 1, b: 1, a: 0.2}
+  highDensityColor: {r: 0, g: 0, b: 0, a: 0.9}
+  densityCheckRadius: 0.2
+  maxDensity: 20
+--- !u!4 &1505329811
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505329809}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.692002, y: -1.3071117, z: 4.721181}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1513936696 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8382273037282296638, guid: 1193ecaa2af6d7949b9c436c26a1b6d1, type: 3}
@@ -10388,3 +10594,7 @@ SceneRoots:
   - {fileID: 966016341}
   - {fileID: 1928236994}
   - {fileID: 1198571739}
+  - {fileID: 634090891}
+  - {fileID: 452461562}
+  - {fileID: 1505329811}
+  - {fileID: 1487760303}
