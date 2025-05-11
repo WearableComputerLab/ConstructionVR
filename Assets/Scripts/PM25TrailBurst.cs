@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class PM25TrailBurst : MonoBehaviour
 {
+    [Header("Control Settings")]
+    public bool startOnAwake = false;
+    public bool useMouseControl = true;
+    public KeyCode burstKey = KeyCode.Mouse0; // Default to left mouse button
+    public bool isBursting = false;  // Flag to track if bursting is active
+
     [Header("Particle Settings")]
     public GameObject particlePrefab;
     public int particleCount = 500;
-    public float particleSize = 0.05f;
+    public float particleSize = 0.01f;
 
     [Header("Emission Settings")]
     public Transform drillingPoint;
     public float emissionDuration = 2f;
     private float emissionTimer;
-    public float emissionRadius = 0.5f;  // Radius around drilling point for emission
+    public float emissionRadius = 0.01f;  // Radius around drilling point for emission
 
     [Header("Burst Settings")]
     public float burstForce = 3.0f;      // Increased upward force
@@ -21,19 +27,19 @@ public class PM25TrailBurst : MonoBehaviour
     public Vector3 windVelocity = new Vector3(0.2f, 0, 0);
     public float diffusionCoefficient = 0.15f;
     public float gravityStrength = 0.2f;
-    public float movementSpeedMultiplier = 1.5f;
+    public float movementSpeedMultiplier = 0.04f;
 
     [Header("Density-Based Color Settings")]
     public Color lowDensityColor = new Color(1, 1, 1, 0.2f);      // Light color for low density
-    public Color highDensityColor = new Color(0, 0, 0, 0.9f);     // Dark color for high density
-    public float densityCheckRadius = 0.3f;                    // Radius to check for neighboring particles
-    public int maxDensity = 10;                                // Density value that maps to the darkest color
+    public Color highDensityColor = new Color(1, 1, 1, 0.2f);     // Dark color for high density
+    public float densityCheckRadius = 0.05f;                    // Radius to check for neighboring particles
+    public int maxDensity = 15;                                // Density value that maps to the darkest color
     public float colorPower = 0.7f;                            // Adjusts the color curve (lower = more pronounced)
 
     [Header("Trail Settings")]
-    public float trailDuration = 1.5f;
+    public float trailDuration = 0f;
     public int trailResolution = 30;
-    public float trailWidth = 0.02f;
+    public float trailWidth = 0.001f;
     public Gradient trailColorGradient;
     public bool useDetailedTrails = true;
     [Range(0.001f, 0.05f)]
@@ -49,14 +55,73 @@ public class PM25TrailBurst : MonoBehaviour
         public float creationTime;
     }
 
+    // Static factory method to create a new PM25TrailBurst instance
+    public static PM25TrailBurst Create(
+        GameObject particlePrefab,
+        Transform drillingPoint,
+        float emissionDuration = 2f,
+        int particleCount = 500,
+        float burstForce = 3.0f,
+        float burstSpread = 1.5f,
+        bool startBursting = false
+        )
+    {
+        // Create a new GameObject to hold our component
+        GameObject burstObj = new GameObject("PM25TrailBurst");
+
+        // Add our component
+        PM25TrailBurst burst = burstObj.AddComponent<PM25TrailBurst>();
+
+        // Set required properties
+        burst.particlePrefab = particlePrefab;
+        burst.drillingPoint = drillingPoint;
+        burst.emissionDuration = emissionDuration;
+        burst.particleCount = particleCount;
+        burst.burstForce = burstForce;
+        burst.burstSpread = burstSpread;
+        burst.startOnAwake = startBursting;
+
+
+        // Initialize the timer
+        burst.emissionTimer = emissionDuration;
+
+        return burst;
+    }
+
+    // Regular initialization 
+    void Awake()
+    {
+        // Initialize the trail color gradient if none was provided
+        InitializeGradient();
+
+        // Set bursting state based on startOnAwake
+        isBursting = startOnAwake;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         emissionTimer = emissionDuration;
         InvokeRepeating("UpdateParticleColors", 0.1f, 0.2f); // Update colors frequently
 
-        // Set up default trail color gradient if none provided
-        if (trailColorGradient.colorKeys.Length == 0)
+        // Set physics timestep to be smaller when detailed trails are used
+        if (useDetailedTrails)
+        {
+            Time.fixedDeltaTime = 0.01f;
+        }
+    }
+
+    // Initialize default gradient if none is provided
+    private void InitializeGradient()
+    {
+        // Check if the gradient itself is null first
+        if (trailColorGradient == null)
+        {
+            trailColorGradient = new Gradient();
+        }
+
+        // Then check if it has any color keys defined
+        if (trailColorGradient.colorKeys == null || trailColorGradient.colorKeys.Length == 0)
         {
             GradientColorKey[] colorKeys = new GradientColorKey[2];
             colorKeys[0].color = highDensityColor;
@@ -72,24 +137,39 @@ public class PM25TrailBurst : MonoBehaviour
 
             trailColorGradient.SetKeys(colorKeys, alphaKeys);
         }
-
-        // Set physics timestep to be smaller when detailed trails are used
-        if (useDetailedTrails)
-        {
-            Time.fixedDeltaTime = 0.01f;
-        }
     }
 
     void Update()
     {
+        // Check for mouse input if mouse control is enabled
+        if (useMouseControl)
+        {
+            if (Input.GetKeyDown(burstKey))
+            {
+                StartBursting();
+            }
+            else if (Input.GetKeyUp(burstKey))
+            {
+                StopBursting();
+            }
+        }
+
         float dt = Time.deltaTime;
 
-        if (emissionTimer > 0)
+        // Only emit particles if bursting is active and emission time remains
+        if (isBursting && emissionTimer > 0)
         {
             EmitParticles();
             emissionTimer -= dt;
         }
 
+        // Continue updating existing particles regardless of bursting state
+        UpdateParticles(dt);
+    }
+
+    // Update particle positions and properties
+    void UpdateParticles(float dt)
+    {
         // Use a smaller timestep for more accurate physics and detailed trails
         float subDt = dt / (useDetailedTrails ? 3 : 1);
         int steps = useDetailedTrails ? 3 : 1;
@@ -163,6 +243,53 @@ public class PM25TrailBurst : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Public methods to control bursting from other scripts
+
+    // Start the bursting process
+    public void StartBursting()
+    {
+        if (!isBursting)
+        {
+            isBursting = true;
+            // Reset the timer if it has run out
+            if (emissionTimer <= 0)
+            {
+                ResetEmissionTimer();
+            }
+        }
+    }
+
+    // Stop the bursting process
+    public void StopBursting()
+    {
+        isBursting = false;
+    }
+
+    // Reset the emission timer to allow for a new full burst
+    public void ResetEmissionTimer()
+    {
+        emissionTimer = emissionDuration;
+    }
+
+    // Set a new emission duration and reset the timer
+    public void SetEmissionDuration(float duration)
+    {
+        emissionDuration = duration;
+        ResetEmissionTimer();
+    }
+
+    // Check if particles are currently being emitted
+    public bool IsEmitting()
+    {
+        return isBursting && emissionTimer > 0;
+    }
+
+    // Get remaining emission time
+    public float GetRemainingEmissionTime()
+    {
+        return emissionTimer;
     }
 
     void EmitParticles()
@@ -257,11 +384,11 @@ public class PM25TrailBurst : MonoBehaviour
             {
                 rend.material.color = currentColor;
 
-                // Debug output to console if density is non-zero
-                if (density > 0)
-                {
-                    Debug.Log($"Particle density: {density}, t: {t}, color: {currentColor}");
-                }
+                // // Debug output to console if density is non-zero
+                // if (density > 0)
+                // {
+                //     Debug.Log($"Particle density: {density}, t: {t}, color: {currentColor}");
+                // }
             }
         }
     }
