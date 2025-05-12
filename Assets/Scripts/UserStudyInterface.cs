@@ -425,23 +425,26 @@ public class UserStudyInterface : MonoBehaviour
 
     void CheckGameCompletion()
     {
-        // Check if all burst points are completed
-        bool allCompleted = true;
-        foreach (bool completed in burstPointCompleted.Values)
-        {
-            if (!completed)
-            {
-                allCompleted = false;
-                break;
-            }
-        }
+        // // Check if all burst points are completed
+        // bool allCompleted = true;
+        // foreach (bool completed in burstPointCompleted.Values)
+        // {
+        //     if (!completed)
+        //     {
+        //         allCompleted = false;
+        //         break;
+        //     }
+        // }
 
         // If all are completed and game isn't already marked as completed
-        if (allCompleted && !gameCompleted)
-        {
-            gameCompleted = true;
-            Debug.Log("All burst points completed! Game over.");
-        }
+        // if (allCompleted && !gameCompleted)
+        // {
+        //     gameCompleted = true;
+        //     Debug.Log("All burst points completed! Game over.");
+
+        //     // Don't automatically stop bursting - let the button control continue to work
+        //     // This allows the player to continue bursting at completed points if desired
+        // }
     }
 
     public void ResetAllBurstPoints()

@@ -393,6 +393,18 @@ public class PM25TrailBurst : MonoBehaviour
         }
     }
 
+    public int GetCurrentParticleCount()
+    {
+        // Get the particle system component
+        ParticleSystem particleSystem = GetComponent<ParticleSystem>();
+        if (particleSystem != null)
+        {
+            // Return the current number of particles
+            return particleSystem.particleCount;
+        }
+        return 0;
+    }
+
     float NormalRandom()
     {
         float u1 = Random.Range(0.0001f, 0.9999f); // Avoid 0 which could cause log(0)
