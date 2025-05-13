@@ -271,15 +271,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.0057628714
+      value: -8.66
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.7273868
+      value: -2.37
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.025429767
+      value: -0.57
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6645,11 +6645,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 446433249}
   m_SourcePrefab: {fileID: 100100000, guid: 1edd9ce0ca2e5294e9fbdb34a13dc68f, type: 3}
---- !u!1 &891084837 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
-  m_PrefabInstance: {fileID: 28741642}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &899638389
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15593,15 +15588,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac716d709bffc484a866e94022436e9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ParticipantID: 0
+  constructionType: 0
   currentMode: 1
   trainingBurstPointIndex: 0
   trainingBurstInterval: 3
   trainingBurstDuration: 5
+  trainingIterations: 3
+  loopTrainingInfinitely: 0
   particlePrefab: {fileID: 216135995}
   burstDuration: 3
   burstPoints:
   - {fileID: 982377002}
-  drillerObject: {fileID: 891084837}
+  - {fileID: 1637823364}
+  - {fileID: 38740026}
+  - {fileID: 97751716}
+  - {fileID: 825056393}
+  - {fileID: 1265961159}
+  - {fileID: 2060179790}
+  - {fileID: 1472818060}
+  - {fileID: 86453499}
+  - {fileID: 876278116}
+  drillerObject: {fileID: 1100504890}
   showBurstVisualization: 0
   hideYOffset: -100
   burstKey: 323
@@ -15615,6 +15623,7 @@ MonoBehaviour:
   touchingStatusText: {fileID: 0}
   visualizationStatusText: {fileID: 0}
   modeText: {fileID: 0}
+  iterationText: {fileID: 0}
   baseWindSpeed: 0.2
   baseHumidity: 60
   baseTemperature: 25
