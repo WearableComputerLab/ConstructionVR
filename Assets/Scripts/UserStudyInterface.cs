@@ -232,7 +232,7 @@ public class UserStudyInterface : MonoBehaviour
         }
 
         time += Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.Mouse1) && currentMode == OperationMode.Study)
+        if ((OVRInput.IsControllerConnected(OVRInput.Controller.LTouch) && OVRInput.GetDown(OVRInput.Button.One)) || Input.GetKeyDown(KeyCode.Mouse1) && currentMode == OperationMode.Study)
         {
             pressRecordingButtonTimes++;
             Debug.Log("Recording Time: " + time + "; Pressed Times: " + pressRecordingButtonTimes);
@@ -533,7 +533,7 @@ public class UserStudyInterface : MonoBehaviour
     // Only used in Study mode
     void HandleBurstInput()
     {
-        bool isButtonPressed = Input.GetKey(burstKey);
+        bool isButtonPressed = Input.GetKey(burstKey) || (OVRInput.IsControllerConnected(OVRInput.Controller.LTouch) && OVRInput.GetDown(OVRInput.Button.One));
 
         // ALWAYS stop ALL burst systems first - this ensures bursts ONLY happen when 
         // we explicitly tell them to start below (and never without the button pressed)
@@ -728,22 +728,18 @@ public class UserStudyInterface : MonoBehaviour
         bool allCompleted = true;
         foreach (var objectComplete in burstPointCompleted)
         {
-            // if (!completed)
-            // {
-            //     // allCompleted = false;
-            //     break;
-            // }
             if (objectComplete.Value == true && GameObject.Find("PM25TrailBurst_" + objectComplete.Key.name) != null)
-            {
                 GameObject.Find("PM25TrailBurst_" + objectComplete.Key.name).SetActive(false);
-            }
+
+            if (!objectComplete.Value)
+                allCompleted = false;
         }
 
         // // If all are completed and game isn't already marked as completed
         //TODO Stop Game;
-        if (allCompleted && !gameCompleted)
+        if (allCompleted)
         {
-            gameCompleted = true;
+            // gameCompleted = true;
 
             Debug.Log("All burst points completed! Game over.");
             StopPlayMode();
