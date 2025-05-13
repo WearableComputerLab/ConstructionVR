@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
@@ -21,6 +23,14 @@ enum ConstructionType
 
 public class UserStudyInterface : MonoBehaviour
 {
+    [Header("Experiment Details")]
+    [SerializeField] private int ParticipantID = 0;
+    [SerializeField] private ConstructionType constructionType = ConstructionType.ActiveDrilling;
+    private float time;
+    private int pressRecordingButtonTimes = 0;
+    private string filePath;
+
+
     [Header("Mode Settings")]
     [SerializeField] private OperationMode currentMode = OperationMode.Study;
     [SerializeField] private int trainingBurstPointIndex = 0; // Index of burst point to use in training mode
@@ -91,6 +101,21 @@ public class UserStudyInterface : MonoBehaviour
 
     void Start()
     {
+        //TODO
+        // Create a unique filename with timestamp
+        // string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+        filePath = Application.dataPath + "/Data_Collected/" + "/Data_PID" + ParticipantID + "_" + constructionType + ".csv";
+
+        // Initialize CSV file with headers if it doesn't exist
+        if (!File.Exists(filePath))
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.WriteLine("DateTime,TimeToResponse,ResponseTimes");
+            }
+        }
+
+
         // Initialize burst systems for each burst point
         foreach (GameObject burstPoint in burstPoints)
         {
@@ -204,6 +229,36 @@ public class UserStudyInterface : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R) && currentMode == OperationMode.Training)
         {
             RestartTraining();
+        }
+
+        time += Time.deltaTime;
+        if (Input.GetKeyDown(KeyCode.Mouse1) && currentMode == OperationMode.Study)
+        {
+            pressRecordingButtonTimes++;
+            Debug.Log("Recording Time: " + time + "; Pressed Times: " + pressRecordingButtonTimes);
+            SaveToCSV(time, pressRecordingButtonTimes);
+        }
+
+    }
+
+    //TODO
+    private void SaveToCSV(float timeToResponse, int responseTimes)
+    {
+        try
+        {
+            // Create string with current data
+            string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string dataString = string.Format("{0},{1},{2}", dateTime, timeToResponse, responseTimes);
+
+            // Append to CSV file
+            using (StreamWriter writer = new StreamWriter(filePath, true))
+            {
+                writer.WriteLine(dataString);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error saving to CSV: " + e.Message);
         }
     }
 
@@ -670,7 +725,7 @@ public class UserStudyInterface : MonoBehaviour
     void CheckGameCompletion()
     {
         // Check if all burst points are completed
-        // bool allCompleted = true;
+        bool allCompleted = true;
         foreach (var objectComplete in burstPointCompleted)
         {
             // if (!completed)
@@ -685,11 +740,14 @@ public class UserStudyInterface : MonoBehaviour
         }
 
         // // If all are completed and game isn't already marked as completed
-        // if (allCompleted && !gameCompleted)
-        // {
-        //     gameCompleted = true;
-        //     Debug.Log("All burst points completed! Game over.");
-        // }
+        //TODO Stop Game;
+        if (allCompleted && !gameCompleted)
+        {
+            gameCompleted = true;
+
+            Debug.Log("All burst points completed! Game over.");
+            StopPlayMode();
+        }
     }
 
     // Set the visualization state (show or hide particles by moving them underground)
@@ -828,5 +886,14 @@ public class UserStudyInterface : MonoBehaviour
                 parent.OnBurstPointCollisionExit(burstPoint);
             }
         }
+    }
+
+    private void StopPlayMode()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.ExitPlaymode();
+#else
+        Debug.Log("The condition has been finished.");
+#endif
     }
 }
