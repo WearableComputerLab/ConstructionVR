@@ -67,7 +67,7 @@ public class PM25TrailBurst : MonoBehaviour
         )
     {
         // Create a new GameObject to hold our component
-        GameObject burstObj = new GameObject("PM25TrailBurst");
+        GameObject burstObj = new GameObject("PM25TrailBurst_" + drillingPoint.name);
 
         // Add our component
         PM25TrailBurst burst = burstObj.AddComponent<PM25TrailBurst>();

@@ -669,16 +669,20 @@ public class UserStudyInterface : MonoBehaviour
 
     void CheckGameCompletion()
     {
-        // // Check if all burst points are completed
+        // Check if all burst points are completed
         // bool allCompleted = true;
-        // foreach (bool completed in burstPointCompleted.Values)
-        // {
-        //     if (!completed)
-        //     {
-        //         allCompleted = false;
-        //         break;
-        //     }
-        // }
+        foreach (var objectComplete in burstPointCompleted)
+        {
+            // if (!completed)
+            // {
+            //     // allCompleted = false;
+            //     break;
+            // }
+            if (objectComplete.Value == true && GameObject.Find("PM25TrailBurst_" + objectComplete.Key.name) != null)
+            {
+                GameObject.Find("PM25TrailBurst_" + objectComplete.Key.name).SetActive(false);
+            }
+        }
 
         // // If all are completed and game isn't already marked as completed
         // if (allCompleted && !gameCompleted)
