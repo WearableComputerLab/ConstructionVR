@@ -6645,6 +6645,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 446433249}
   m_SourcePrefab: {fileID: 100100000, guid: 1edd9ce0ca2e5294e9fbdb34a13dc68f, type: 3}
+--- !u!1 &891084837 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
+  m_PrefabInstance: {fileID: 28741642}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &899638389
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8027,7 +8032,7 @@ Transform:
   m_GameObject: {fileID: 1035168441}
   serializedVersion: 2
   m_LocalRotation: {x: -0.58980364, y: 0.014866448, z: 0.019011874, w: 0.80718595}
-  m_LocalPosition: {x: -4.1996403, y: 0.24, z: -8.950491}
+  m_LocalPosition: {x: -4.1995, y: 0.3303, z: -8.9217}
   m_LocalScale: {x: 0.052652005, y: 0.052133027, z: 0.15404767}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8435,8 +8440,8 @@ Transform:
   m_GameObject: {fileID: 1100504890}
   serializedVersion: 2
   m_LocalRotation: {x: -0.02843174, y: 0.024069253, z: 0.0017702152, w: 0.9993044}
-  m_LocalPosition: {x: 0.0030002543, y: 0.06600009, z: 0.07200049}
-  m_LocalScale: {x: 0.065815, y: 0.06516628, z: 0.3512286}
+  m_LocalPosition: {x: 0, y: 0.0697, z: 0.2222}
+  m_LocalScale: {x: 0.065815, y: 0.06516628, z: 0.078436375}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 543450653705107425}
@@ -15511,6 +15516,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2046492447}
   - component: {fileID: 2046492446}
+  - component: {fileID: 2046492448}
   m_Layer: 0
   m_Name: Experiment Control
   m_TagString: Untagged
@@ -15525,7 +15531,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2046492445}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b71c1f0b0afb3e4fba02bf525e81d54, type: 3}
   m_Name: 
@@ -15575,6 +15581,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2046492448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046492445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac716d709bffc484a866e94022436e9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentMode: 1
+  trainingBurstPointIndex: 0
+  trainingBurstInterval: 3
+  trainingBurstDuration: 5
+  particlePrefab: {fileID: 216135995}
+  burstDuration: 3
+  burstPoints:
+  - {fileID: 982377002}
+  drillerObject: {fileID: 891084837}
+  showBurstVisualization: 0
+  hideYOffset: -100
+  burstKey: 323
+  requiredHoldTime: 3
+  touchingDistance: 0.5
+  touchingRequired: 1
+  burstParameterText: {fileID: 1541624156}
+  windSpeedText: {fileID: 446097216}
+  humidityText: {fileID: 1541487532}
+  temperatureText: {fileID: 223846272}
+  touchingStatusText: {fileID: 0}
+  visualizationStatusText: {fileID: 0}
+  modeText: {fileID: 0}
+  baseWindSpeed: 0.2
+  baseHumidity: 60
+  baseTemperature: 25
+  parameterVariation: 1
+  useVerySubtleChanges: 1
+  initialBurstParameter: 1
+  burstParameterThresholds:
+  - 1
+  - 2
+  burstParameterValues:
+  - 1.5
+  - 3.2
+  normalColor: {r: 1, g: 0, b: 0, a: 1}
+  completedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1 &2060179790
 GameObject:
   m_ObjectHideFlags: 0

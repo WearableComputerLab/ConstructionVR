@@ -6,36 +6,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-// Define operation modes
-public enum OperationMode
-{
-    Training,
-    Study
-}
 
-enum ConstructionType
+public class BurstControl : MonoBehaviour
 {
-    ActiveDrilling,
-    PassiveMoving
-}
-
-public class UserStudyInterface : MonoBehaviour
-{
-    [Header("Mode Settings")]
-    [SerializeField] private OperationMode currentMode = OperationMode.Study;
-    [SerializeField] private int trainingBurstPointIndex = 0; // Index of burst point to use in training mode
-    [SerializeField] private float trainingBurstInterval = 3f; // Time between automatic training bursts
-    [SerializeField] private float trainingBurstDuration = 2f; // Duration of each training burst
-    [SerializeField] private int trainingIterations = 5; // Number of burst iterations in training mode
-    [SerializeField] private bool loopTrainingInfinitely = false; // Whether to loop training infinitely or use iterations
-
     [Header("Burst System")]
     [SerializeField] private GameObject particlePrefab;
     [SerializeField] private float burstDuration = 3f;
     [SerializeField] private List<GameObject> burstPoints = new List<GameObject>();
     [SerializeField] private GameObject drillerObject;
-    [SerializeField] private bool showBurstVisualization = true; // Toggle for showing burst visualization
-    [SerializeField] private float hideYOffset = -100f; // How far underground to hide visualization
 
     [Header("Control Settings")]
     [SerializeField] private KeyCode burstKey = KeyCode.Mouse0;
@@ -49,9 +27,6 @@ public class UserStudyInterface : MonoBehaviour
     [SerializeField] private TMP_Text humidityText;
     [SerializeField] private TMP_Text temperatureText;
     [SerializeField] private TMP_Text touchingStatusText; // Added to show current touching status
-    [SerializeField] private TMP_Text visualizationStatusText; // Added to show visualization status
-    [SerializeField] private TMP_Text modeText; // Added to show current mode
-    [SerializeField] private TMP_Text iterationText; // To show current training iteration
 
     [Header("Environment Parameters")]
     [SerializeField] private float baseWindSpeed = 0.2f;
@@ -80,14 +55,10 @@ public class UserStudyInterface : MonoBehaviour
     private Dictionary<GameObject, float> burstPointHoldTimes = new Dictionary<GameObject, float>();
     private Dictionary<GameObject, bool> burstPointsTouching = new Dictionary<GameObject, bool>();
     private Dictionary<GameObject, int> burstPointCollisionCount = new Dictionary<GameObject, int>(); // Track collisions
-    private Dictionary<GameObject, Vector3> originalPositions = new Dictionary<GameObject, Vector3>(); // Store original positions
     private float currentBurstParameter;
     private bool gameCompleted = false;
     private float burstActiveTimer = 0f;
     private GameObject currentActiveBurstPoint = null; // Track which burst point is currently active
-    private GameObject trainingBurstPoint = null; // Reference to the burst point used in training mode
-    private Coroutine trainingCoroutine = null; // Reference to the training coroutine
-    private int currentTrainingIteration = 0; // Current iteration in training mode
 
     void Start()
     {
@@ -98,7 +69,7 @@ public class UserStudyInterface : MonoBehaviour
                 particlePrefab,
                 burstPoint.transform,
                 burstDuration,
-                particleCount: 50,
+                particleCount: 500,
                 burstForce: 10f,
                 burstSpread: 5.0f,
                 startBursting: false
@@ -109,9 +80,6 @@ public class UserStudyInterface : MonoBehaviour
 
             // Store the burst system
             burstSystems[burstPoint] = burst;
-
-            // Store original position
-            originalPositions[burstPoint] = burstPoint.transform.position;
 
             // Initialize tracking dictionaries
             burstPointCompleted[burstPoint] = false;
@@ -148,12 +116,6 @@ public class UserStudyInterface : MonoBehaviour
         currentBurstParameter = initialBurstParameter;
         UpdateUITexts();
         UpdateTouchingRequirementUI();
-        UpdateVisualizationStatusUI();
-        UpdateModeUI();
-        UpdateIterationUI();
-
-        // Setup mode-specific settings
-        SetupOperationMode(currentMode);
 
         // Start random parameter updates
         InvokeRepeating("UpdateEnvironmentParameters", 0.5f, 1.0f);
@@ -163,232 +125,32 @@ public class UserStudyInterface : MonoBehaviour
         currentTemperature = baseTemperature;
     }
 
-    void OnDisable()
-    {
-        // Make sure to stop the training coroutine when disabled
-        if (trainingCoroutine != null)
-        {
-            StopCoroutine(trainingCoroutine);
-            trainingCoroutine = null;
-        }
-    }
-
     void Update()
     {
         if (gameCompleted)
             return;
 
-        // Different handling based on mode
-        if (currentMode == OperationMode.Study)
-        {
-            // Study mode - Standard interaction with hidden visualization
-            HandleBurstInput();
-            UpdateBurstParameter();
-            CheckGameCompletion();
-        }
-        // Note: Training mode is handled by coroutine, no need for input handling
+        // Handle input and bursting
+        HandleBurstInput();
 
-        // Toggle visualization with a key (for testing purposes)
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            ToggleBurstVisualization();
-        }
+        // Update burst parameter if actively bursting
+        UpdateBurstParameter();
 
-        // Toggle mode with M key (for testing)
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ToggleOperationMode();
-        }
-
-        // Restart training with R key (for testing)
-        if (Input.GetKeyDown(KeyCode.R) && currentMode == OperationMode.Training)
-        {
-            RestartTraining();
-        }
-    }
-
-    // Set up operation mode
-    void SetupOperationMode(OperationMode mode)
-    {
-        // Stop existing coroutines if any
-        if (trainingCoroutine != null)
-        {
-            StopCoroutine(trainingCoroutine);
-            trainingCoroutine = null;
-        }
-
-        // Reset state
-        foreach (var system in burstSystems.Values)
-        {
-            system.StopBursting();
-        }
-        currentActiveBurstPoint = null;
-
-        if (mode == OperationMode.Training)
-        {
-            // Training mode setup
-
-            // Ensure index is valid
-            trainingBurstPointIndex = Mathf.Clamp(trainingBurstPointIndex, 0, burstPoints.Count - 1);
-
-            // Get the training burst point
-            if (burstPoints.Count > 0)
-            {
-                trainingBurstPoint = burstPoints[trainingBurstPointIndex];
-
-                // Move all burst points to their original positions to make them visible
-                SetBurstVisualization(true);
-
-                // Reset iteration counter
-                currentTrainingIteration = 0;
-                UpdateIterationUI();
-
-                // Start training coroutine
-                trainingCoroutine = StartCoroutine(TrainingModeRoutine());
-            }
-            else
-            {
-                Debug.LogError("No burst points available for training mode!");
-            }
-        }
-        else // Study mode
-        {
-            // Study mode setup
-            // Hide burst visualization for study mode
-            SetBurstVisualization(false);
-            trainingBurstPoint = null;
-        }
-
-        UpdateModeUI();
-    }
-
-    // Restart the training cycle
-    public void RestartTraining()
-    {
-        if (currentMode == OperationMode.Training)
-        {
-            // Stop existing coroutine
-            if (trainingCoroutine != null)
-            {
-                StopCoroutine(trainingCoroutine);
-                trainingCoroutine = null;
-            }
-
-            // Reset state
-            foreach (var system in burstSystems.Values)
-            {
-                system.StopBursting();
-            }
-
-            // Reset iteration counter
-            currentTrainingIteration = 0;
-            UpdateIterationUI();
-
-            // Start training coroutine again
-            trainingCoroutine = StartCoroutine(TrainingModeRoutine());
-
-            Debug.Log("Training restarted");
-        }
-    }
-
-    // Training mode coroutine - automatically triggers burst at the training point
-    IEnumerator TrainingModeRoutine()
-    {
-        // Continue until we complete all iterations or exit training mode
-        while ((loopTrainingInfinitely || currentTrainingIteration < trainingIterations) &&
-               currentMode == OperationMode.Training &&
-               trainingBurstPoint != null)
-        {
-            // Update iteration counter if not looping infinitely
-            if (!loopTrainingInfinitely)
-            {
-                currentTrainingIteration++;
-                UpdateIterationUI();
-
-                // Check if we've reached the maximum iterations
-                if (currentTrainingIteration > trainingIterations)
-                {
-                    Debug.Log("Training completed all iterations!");
-                    yield break; // Exit the coroutine
-                }
-            }
-
-            // Start the burst effect
-            if (burstSystems.TryGetValue(trainingBurstPoint, out PM25TrailBurst burstSystem))
-            {
-                // Trigger burst
-                burstSystem.StartBursting();
-
-                // Update PM2.5 values while burst is active
-                float burstTimer = 0f;
-                while (burstTimer < trainingBurstDuration)
-                {
-                    burstTimer += Time.deltaTime;
-                    burstActiveTimer += Time.deltaTime;
-
-                    // Update PM2.5 parameter
-                    currentBurstParameter += (float)(0.028 * (1.0 / (1.0 + 0.1 * burstActiveTimer)));
-                    UpdateUITexts();
-
-                    yield return null;
-                }
-
-                // Stop the burst
-                burstSystem.StopBursting();
-            }
-
-            // Wait before the next burst
-            yield return new WaitForSeconds(trainingBurstInterval);
-        }
-
-        Debug.Log("Training sequence completed!");
-    }
-
-    // Update the UI to show current iteration
-    void UpdateIterationUI()
-    {
-        if (iterationText != null)
-        {
-            if (loopTrainingInfinitely)
-            {
-                iterationText.text = "Training: Continuous Mode";
-            }
-            else
-            {
-                iterationText.text = $"Training: {currentTrainingIteration}/{trainingIterations}";
-            }
-        }
-    }
-
-    // Toggle between Training and Study modes
-    public void ToggleOperationMode()
-    {
-        currentMode = (currentMode == OperationMode.Training) ?
-                      OperationMode.Study : OperationMode.Training;
-
-        SetupOperationMode(currentMode);
-        Debug.Log($"Switched to {currentMode} mode");
+        // Check if game is completed
+        CheckGameCompletion();
     }
 
     // These methods handle actual collider-based collision detection
     void OnTriggerEnter(Collider other)
     {
-        // Only process collisions in Study mode
-        if (currentMode == OperationMode.Study)
-        {
-            // Check if the collision is between driller and a burst point
-            CheckCollisionWithBurstPoint(other.gameObject, true);
-        }
+        // Check if the collision is between driller and a burst point
+        CheckCollisionWithBurstPoint(other.gameObject, true);
     }
 
     void OnTriggerExit(Collider other)
     {
-        // Only process collisions in Study mode
-        if (currentMode == OperationMode.Study)
-        {
-            // Check if the collision ended between driller and a burst point
-            CheckCollisionWithBurstPoint(other.gameObject, false);
-        }
+        // Check if the collision ended between driller and a burst point
+        CheckCollisionWithBurstPoint(other.gameObject, false);
     }
 
     // Add these methods to the burst points to detect collisions
@@ -475,7 +237,6 @@ public class UserStudyInterface : MonoBehaviour
         }
     }
 
-    // Only used in Study mode
     void HandleBurstInput()
     {
         bool isButtonPressed = Input.GetKey(burstKey);
@@ -533,7 +294,6 @@ public class UserStudyInterface : MonoBehaviour
         if (currentActiveBurstPoint != null && burstPointsTouching[currentActiveBurstPoint])
         {
             // Start bursting for the active point regardless of completion status
-            // But in Study mode, visualization is hidden, so this mostly affects PM2.5 calculations
             burstSystems[currentActiveBurstPoint].StartBursting();
 
             // Only update hold time if point is not completed yet
@@ -558,6 +318,9 @@ public class UserStudyInterface : MonoBehaviour
 
                     // Check if this was the last point
                     CheckGameCompletion();
+
+                    // Note: We no longer stop bursting or reset active point when completed
+                    // The burst will continue as long as button is pressed and driller is colliding
                 }
             }
         }
@@ -581,8 +344,15 @@ public class UserStudyInterface : MonoBehaviour
         {
             burstActiveTimer += Time.deltaTime;
 
-            // Update PM2.5 parameter based on burst time
-            currentBurstParameter += (float)(0.01 * (1.0 / (1.0 + 0.1 * burstActiveTimer)));
+            // Update parameter based on burst time
+            // for (int i = 0; i < burstParameterThresholds.Length; i++)
+            // {
+            //     if (burstActiveTimer >= burstParameterThresholds[i])
+            //     {
+            //         currentBurstParameter = burstParameterValues[i];
+            //     }
+            // }
+            currentBurstParameter += (float)(0.013 * (1.0 / (1.0 + 0.1 * burstActiveTimer)));
 
             // Update UI
             UpdateUITexts();
@@ -601,11 +371,11 @@ public class UserStudyInterface : MonoBehaviour
             // Apply very subtle changes (0.01 level)
             currentWindSpeed += Random.Range(-0.01f, 0.01f);
             currentHumidity += Random.Range(-0.1f, 0.1f);
-            currentTemperature += Random.Range(-0.01f, 0.01f);
+            currentTemperature += Random.Range(-0.1f, 0.1f);
 
             // Ensure values don't drift too far from base values (optional)
-            currentWindSpeed = Mathf.Clamp(currentWindSpeed, baseWindSpeed - 0.3f, baseWindSpeed + 0.3f);
-            currentHumidity = Mathf.Clamp(currentHumidity, baseHumidity - 0.1f, baseHumidity + 0.1f);
+            currentWindSpeed = Mathf.Clamp(currentWindSpeed, baseWindSpeed - 0.2f, baseWindSpeed + 0.2f);
+            currentHumidity = Mathf.Clamp(currentHumidity, baseHumidity - 0.2f, baseHumidity + 0.2f);
             currentTemperature = Mathf.Clamp(currentTemperature, baseTemperature - 0.2f, baseTemperature + 0.2f);
         }
         else
@@ -649,24 +419,6 @@ public class UserStudyInterface : MonoBehaviour
         }
     }
 
-    // Update the UI to show current visualization status
-    void UpdateVisualizationStatusUI()
-    {
-        if (visualizationStatusText != null)
-        {
-            visualizationStatusText.text = $"PM2.5 Visualization: {(showBurstVisualization ? "ON" : "OFF")}";
-        }
-    }
-
-    // Update the UI to show current mode
-    void UpdateModeUI()
-    {
-        if (modeText != null)
-        {
-            modeText.text = $"Mode: {currentMode}";
-        }
-    }
-
     void CheckGameCompletion()
     {
         // // Check if all burst points are completed
@@ -680,51 +432,15 @@ public class UserStudyInterface : MonoBehaviour
         //     }
         // }
 
-        // // If all are completed and game isn't already marked as completed
+        // If all are completed and game isn't already marked as completed
         // if (allCompleted && !gameCompleted)
         // {
         //     gameCompleted = true;
         //     Debug.Log("All burst points completed! Game over.");
+
+        //     // Don't automatically stop bursting - let the button control continue to work
+        //     // This allows the player to continue bursting at completed points if desired
         // }
-    }
-
-    // Set the visualization state (show or hide particles by moving them underground)
-    public void SetBurstVisualization(bool isVisible)
-    {
-        showBurstVisualization = isVisible;
-
-        foreach (var entry in burstSystems)
-        {
-            GameObject burstPoint = entry.Key;
-            PM25TrailBurst burstSystem = entry.Value;
-
-            // Get the original position or default to current position if not stored
-            Vector3 originalPos = originalPositions.ContainsKey(burstPoint)
-                ? originalPositions[burstPoint]
-                : burstPoint.transform.position;
-
-            if (isVisible)
-            {
-                // Restore to original position
-                burstSystem.transform.position = new Vector3(0.01f, 0.01f, 0.01f);
-            }
-            else
-            {
-                // Move underground by adjusting Y position
-                // Vector3 hiddenPos = originalPos;
-                // hiddenPos.y += hideYOffset; // Move down underground
-                burstSystem.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
-            }
-        }
-
-        UpdateVisualizationStatusUI();
-        Debug.Log($"PM2.5 visualization is now {(showBurstVisualization ? "ON" : "OFF")}");
-    }
-
-    // Toggle the visualization state
-    public void ToggleBurstVisualization()
-    {
-        SetBurstVisualization(!showBurstVisualization);
     }
 
     public void ResetAllBurstPoints()
@@ -786,10 +502,10 @@ public class UserStudyInterface : MonoBehaviour
     // Add this helper class to handle collisions for each burst point
     public class BurstPointCollisionHandler : MonoBehaviour
     {
-        private UserStudyInterface parent;
+        private BurstControl parent;
         private GameObject burstPoint;
 
-        public void Initialize(UserStudyInterface parent, GameObject burstPoint)
+        public void Initialize(BurstControl parent, GameObject burstPoint)
         {
             this.parent = parent;
             this.burstPoint = burstPoint;
