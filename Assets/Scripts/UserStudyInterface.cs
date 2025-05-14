@@ -98,9 +98,13 @@ public class UserStudyInterface : MonoBehaviour
     private GameObject trainingBurstPoint = null; // Reference to the burst point used in training mode
     private Coroutine trainingCoroutine = null; // Reference to the training coroutine
     private int currentTrainingIteration = 0; // Current iteration in training mode
+    private float burstTimerPassive = 0f;
+    private float timer = 0f;
+
 
     void Start()
     {
+        UnityEngine.Random.InitState(123);
         //TODO
         // Create a unique filename with timestamp
         // string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
@@ -113,6 +117,11 @@ public class UserStudyInterface : MonoBehaviour
             {
                 writer.WriteLine("DateTime,TimeToResponse,ResponseTimes");
             }
+        }
+
+        if (constructionType == ConstructionType.PassiveMoving)
+        {
+            GameObject.Find("Driller").SetActive(false);
         }
 
 
@@ -200,6 +209,19 @@ public class UserStudyInterface : MonoBehaviour
 
     void Update()
     {
+        timer += Time.deltaTime;
+        if (constructionType == ConstructionType.PassiveMoving && timer > 1.5f)
+        {
+            burstTimerPassive += Time.deltaTime;
+            timer = 0;
+
+            // Update PM2.5 parameter
+            currentBurstParameter += (float)(Random.Range(0.1f, 1f) * (1.0 / (1.0 + 0.1 * burstTimerPassive)));
+            UpdateUITexts();
+            UpdateEnvironmentParameters();
+        }
+
+
         if (gameCompleted)
             return;
 
@@ -232,7 +254,7 @@ public class UserStudyInterface : MonoBehaviour
         }
 
         time += Time.deltaTime;
-        if ((OVRInput.IsControllerConnected(OVRInput.Controller.LTouch) && OVRInput.GetDown(OVRInput.Button.One)) || Input.GetKeyDown(KeyCode.Mouse1) && currentMode == OperationMode.Study)
+        if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger) || Input.GetKeyDown(KeyCode.Mouse1) && currentMode == OperationMode.Study)
         {
             pressRecordingButtonTimes++;
             Debug.Log("Recording Time: " + time + "; Pressed Times: " + pressRecordingButtonTimes);
@@ -533,7 +555,7 @@ public class UserStudyInterface : MonoBehaviour
     // Only used in Study mode
     void HandleBurstInput()
     {
-        bool isButtonPressed = Input.GetKey(burstKey) || (OVRInput.IsControllerConnected(OVRInput.Controller.LTouch) && OVRInput.GetDown(OVRInput.Button.One));
+        bool isButtonPressed = Input.GetKey(burstKey) || OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) > 0.5f;
 
         // ALWAYS stop ALL burst systems first - this ensures bursts ONLY happen when 
         // we explicitly tell them to start below (and never without the button pressed)
