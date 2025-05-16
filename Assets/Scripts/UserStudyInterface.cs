@@ -179,7 +179,8 @@ public class UserStudyInterface : MonoBehaviour
         }
 
         // Initialize UI values
-        currentBurstParameter = initialBurstParameter;
+        if (currentMode == OperationMode.Training) currentBurstParameter = 1;
+        else currentBurstParameter = initialBurstParameter;
         UpdateUITexts();
         UpdateTouchingRequirementUI();
         UpdateVisualizationStatusUI();
@@ -216,7 +217,7 @@ public class UserStudyInterface : MonoBehaviour
             timer = 0;
 
             // Update PM2.5 parameter
-            currentBurstParameter += (float)(Random.Range(0.1f, 1f) * (1.0 / (1.0 + 0.1 * burstTimerPassive)));
+            currentBurstParameter += (float) (1.0f * (2.0 / (1.0 + 0.1 * burstTimerPassive)));
             UpdateUITexts();
             UpdateEnvironmentParameters();
         }
@@ -404,7 +405,7 @@ public class UserStudyInterface : MonoBehaviour
                     burstActiveTimer += Time.deltaTime;
 
                     // Update PM2.5 parameter
-                    currentBurstParameter += (float)(0.028 * (1.0 / (1.0 + 0.1 * burstActiveTimer)));
+                    currentBurstParameter += (float)(1.0f * (2.0 / (1.0 + 0.1 * burstTimerPassive)));
                     UpdateUITexts();
 
                     yield return null;
@@ -659,7 +660,7 @@ public class UserStudyInterface : MonoBehaviour
             burstActiveTimer += Time.deltaTime;
 
             // Update PM2.5 parameter based on burst time
-            currentBurstParameter += (float)(0.01 * (1.0 / (1.0 + 0.1 * burstActiveTimer)));
+            currentBurstParameter += (float)(0.1 * (1.0 / (1.0 + 0.1 * burstActiveTimer)));
 
             // Update UI
             UpdateUITexts();
