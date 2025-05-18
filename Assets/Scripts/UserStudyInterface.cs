@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using TMPro;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -33,6 +35,7 @@ public class UserStudyInterface : MonoBehaviour
 
     [Header("Mode Settings")]
     [SerializeField] private OperationMode currentMode = OperationMode.Study;
+    [SerializeField] private float requiredHoldTime = 5.0f; //Drilling 5s
     [SerializeField] private int trainingBurstPointIndex = 0; // Index of burst point to use in training mode
     [SerializeField] private float trainingBurstInterval = 3f; // Time between automatic training bursts
     [SerializeField] private float trainingBurstDuration = 2f; // Duration of each training burst
@@ -49,7 +52,6 @@ public class UserStudyInterface : MonoBehaviour
 
     [Header("Control Settings")]
     [SerializeField] private KeyCode burstKey = KeyCode.Mouse0;
-    [SerializeField] private float requiredHoldTime = 3.0f;
     [SerializeField] private float touchingDistance = 0.5f;
     [SerializeField] private bool touchingRequired = true; // Whether touching is required to burst
 
@@ -100,7 +102,8 @@ public class UserStudyInterface : MonoBehaviour
     private int currentTrainingIteration = 0; // Current iteration in training mode
     private float burstTimerPassive = 0f;
     private float timer = 0f;
-
+    private bool isPMValueGreaterThan25 = false;
+    private GameObject tempBurstPointForStartTime = null;
 
     void Start()
     {
@@ -115,7 +118,7 @@ public class UserStudyInterface : MonoBehaviour
         {
             using (StreamWriter writer = new StreamWriter(filePath))
             {
-                writer.WriteLine("DateTime,TimeToResponse,ResponseTimes");
+                writer.WriteLine("DateTime,TimeToResponse,ResponseTimes,TimeToPM2.5,CurrentPM2.5,DrillingPoint,TimeToStartPoint"); //dateTime, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
             }
         }
 
@@ -217,9 +220,20 @@ public class UserStudyInterface : MonoBehaviour
             timer = 0;
 
             // Update PM2.5 parameter
-            currentBurstParameter += (float) (1.0f * (2.0 / (1.0 + 0.1 * burstTimerPassive)));
+            currentBurstParameter += (float)(1.0f * (2.0 / (1.0 + 0.1 * burstTimerPassive)));
             UpdateUITexts();
             UpdateEnvironmentParameters();
+        }
+
+        //* Vibration
+        // Check if a specific button is pressed
+        if (OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) > 0.5 && OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0.5 && GameObject.Find("OVRControllerVisual").transform.parent.name == "RightController" && Vector3.Distance(GameObject.Find("OVRControllerVisual").transform.position, GameObject.Find("Driller").transform.position) < 0.3)
+        {
+            OVRInput.SetControllerVibration(1.5f, 1.5f, OVRInput.Controller.RTouch);
+        }
+        else
+        {
+            OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.RTouch);
         }
 
 
@@ -259,19 +273,24 @@ public class UserStudyInterface : MonoBehaviour
         {
             pressRecordingButtonTimes++;
             Debug.Log("Recording Time: " + time + "; Pressed Times: " + pressRecordingButtonTimes);
-            SaveToCSV(time, pressRecordingButtonTimes);
+            SaveToCSV(time, pressRecordingButtonTimes, currentBurstParameter);
         }
-
+        if (currentBurstParameter >= 25 && !isPMValueGreaterThan25 && currentMode == OperationMode.Study)
+        {
+            isPMValueGreaterThan25 = true;
+            Debug.Log("Recording Time: " + time + "; Pressed Times: " + pressRecordingButtonTimes);
+            SaveToCSV(-1, -1, currentBurstParameter, time);
+        }
     }
 
-    //TODO
-    private void SaveToCSV(float timeToResponse, int responseTimes)
+    //* Save Data
+    private void SaveToCSV(float timeToResponse = -1, int responseTimes = -1, float currentBurstParameter = -1, float timeToPM25 = -1, float timeToStartBurst = -1, string DrillingPoint = "-1")
     {
         try
         {
             // Create string with current data
             string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            string dataString = string.Format("{0},{1},{2}", dateTime, timeToResponse, responseTimes);
+            string dataString = string.Format("{0},{1},{2},{3},{4},{5},{6}", dateTime, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
 
             // Append to CSV file
             using (StreamWriter writer = new StreamWriter(filePath, true))
@@ -617,6 +636,13 @@ public class UserStudyInterface : MonoBehaviour
             // Only update hold time if point is not completed yet
             if (!burstPointCompleted[currentActiveBurstPoint])
             {
+
+                if (currentActiveBurstPoint != tempBurstPointForStartTime && constructionType == ConstructionType.ActiveDrilling)
+                {
+                    tempBurstPointForStartTime = currentActiveBurstPoint;
+                    SaveToCSV(-1, -1, currentBurstParameter, -1, time, currentActiveBurstPoint.name);
+                }
+
                 burstPointHoldTimes[currentActiveBurstPoint] += Time.deltaTime;
 
                 // Check if just completed

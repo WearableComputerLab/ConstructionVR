@@ -15588,8 +15588,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac716d709bffc484a866e94022436e9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParticipantID: 256
-  constructionType: 1
+  ParticipantID: 996
+  constructionType: 0
   currentMode: 1
   trainingBurstPointIndex: 0
   trainingBurstInterval: 8
@@ -15613,7 +15613,7 @@ MonoBehaviour:
   showBurstVisualization: 0
   hideYOffset: -100
   burstKey: 323
-  requiredHoldTime: 3
+  requiredHoldTime: 5
   touchingDistance: 0.5
   touchingRequired: 1
   burstParameterText: {fileID: 1541624156}
