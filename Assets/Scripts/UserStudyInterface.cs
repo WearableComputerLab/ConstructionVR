@@ -290,7 +290,7 @@ public class UserStudyInterface : MonoBehaviour
         {
             // Create string with current data
             string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            string dataString = string.Format("{0},{1},{2},{3},{4},{5},{6}", dateTime, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
+            string dataString = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", dateTime, ParticipantID, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
 
             // Append to CSV file
             using (StreamWriter writer = new StreamWriter(filePath, true))
