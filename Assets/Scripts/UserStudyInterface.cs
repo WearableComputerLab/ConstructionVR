@@ -118,7 +118,7 @@ public class UserStudyInterface : MonoBehaviour
         {
             using (StreamWriter writer = new StreamWriter(filePath))
             {
-                writer.WriteLine("DateTime,TimeToResponse,ResponseTimes,TimeToPM2.5,CurrentPM2.5,DrillingPoint,TimeToStartPoint"); //dateTime, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
+                writer.WriteLine("DateTime,PID,TimeToResponse,ResponseTimes,TimeToPM2.5,CurrentPM2.5,DrillingPoint,TimeToStartPoint"); //dateTime, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
             }
         }
 
