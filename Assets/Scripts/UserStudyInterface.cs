@@ -28,13 +28,17 @@ public class UserStudyInterface : MonoBehaviour
     [Header("Experiment Details")]
     [SerializeField] private int ParticipantID = 0;
     [SerializeField] private ConstructionType constructionType = ConstructionType.ActiveDrilling;
+    [SerializeField] public OperationMode currentMode = OperationMode.Study;
+
     private float time;
     private int pressRecordingButtonTimes = 0;
     private string filePath;
 
 
     [Header("Mode Settings")]
-    [SerializeField] private OperationMode currentMode = OperationMode.Study;
+    [SerializeField] private float trainingStartDelay = 10f; // Configurable delay before training starts
+    [SerializeField] private bool requireMousePressForTraining = false; // Toggle between automatic and manual triggering
+
     [SerializeField] private float requiredHoldTime = 5.0f; //Drilling 5s
     [SerializeField] private int trainingBurstPointIndex = 0; // Index of burst point to use in training mode
     [SerializeField] private float trainingBurstInterval = 3f; // Time between automatic training bursts
@@ -118,7 +122,7 @@ public class UserStudyInterface : MonoBehaviour
         {
             using (StreamWriter writer = new StreamWriter(filePath))
             {
-                writer.WriteLine("DateTime,PID,TimeToResponse,ResponseTimes,TimeToPM2.5,CurrentPM2.5,DrillingPoint,TimeToStartPoint"); //dateTime, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
+                writer.WriteLine("DateTime,PID,TimeToResponse,ResponseTimes,TimeToPM2.5,CurrentPM2.5,TaskPoint,TimeToStartPoint"); //dateTime, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
             }
         }
 
@@ -284,13 +288,13 @@ public class UserStudyInterface : MonoBehaviour
     }
 
     //* Save Data
-    private void SaveToCSV(float timeToResponse = -1, int responseTimes = -1, float currentBurstParameter = -1, float timeToPM25 = -1, float timeToStartBurst = -1, string DrillingPoint = "-1")
+    public void SaveToCSV(float timeToResponse = -1, int responseTimes = -1, float currentBurstParameter = -1, float timeToPM25 = -1, float timeToPoint = -1, string TaskPoint = "-1")
     {
         try
         {
             // Create string with current data
             string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            string dataString = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", dateTime, ParticipantID, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, DrillingPoint, timeToStartBurst);
+            string dataString = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", dateTime, ParticipantID, timeToResponse, responseTimes, timeToPM25, currentBurstParameter, TaskPoint, timeToPoint);
 
             // Append to CSV file
             using (StreamWriter writer = new StreamWriter(filePath, true))
@@ -302,6 +306,16 @@ public class UserStudyInterface : MonoBehaviour
         {
             Debug.LogError("Error saving to CSV: " + e.Message);
         }
+    }
+
+    // Add a public getter for currentBurstParameter
+    public float GetCurrentBurstParameter()
+    {
+        return currentBurstParameter;
+    }
+    public float GetCurrentTime()
+    {
+        return time;  // This returns YOUR time field, not Unity's Time.time
     }
 
     // Set up operation mode
@@ -391,6 +405,25 @@ public class UserStudyInterface : MonoBehaviour
     // Training mode coroutine - automatically triggers burst at the training point
     IEnumerator TrainingModeRoutine()
     {
+        // Apply initial delay if configured
+        if (trainingStartDelay > 0)
+        {
+            Debug.Log($"Training will be ready in {trainingStartDelay} seconds...");
+            yield return new WaitForSeconds(trainingStartDelay);
+        }
+
+        // Wait for mouse press if configured
+        if (requireMousePressForTraining)
+        {
+            Debug.Log("Training ready! Press mouse button to start bursting...");
+            while (!Input.GetKeyDown(burstKey) && !Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                yield return null;
+            }
+        }
+
+        Debug.Log("Training started!");
+
         // Continue until we complete all iterations or exit training mode
         while ((loopTrainingInfinitely || currentTrainingIteration < trainingIterations) &&
                currentMode == OperationMode.Training &&
