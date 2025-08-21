@@ -673,7 +673,7 @@ public class UserStudyInterface : MonoBehaviour
                 if (currentActiveBurstPoint != tempBurstPointForStartTime && constructionType == ConstructionType.ActiveDrilling)
                 {
                     tempBurstPointForStartTime = currentActiveBurstPoint;
-                    SaveToCSV(-1, -1, currentBurstParameter, -1, time, currentActiveBurstPoint.name);
+                    SaveToCSV(-1, -1, currentBurstParameter, -1, time, "ActiveDrilling_" + currentActiveBurstPoint.name);
                 }
 
                 burstPointHoldTimes[currentActiveBurstPoint] += Time.deltaTime;
