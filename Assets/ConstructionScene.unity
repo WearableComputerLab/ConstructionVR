@@ -274,15 +274,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.89
+      value: -0.054
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.42
+      value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.02
+      value: 0.008
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f9536dfeae33dd54c8004880223ad842, type: 3}
       propertyPath: m_LocalRotation.w
@@ -8442,7 +8442,7 @@ Transform:
   m_GameObject: {fileID: 1035168441}
   serializedVersion: 2
   m_LocalRotation: {x: -0.57066983, y: 0.03298706, z: 0.044074837, w: 0.81933224}
-  m_LocalPosition: {x: -4.3270683, y: 0.24027613, z: -9.256402}
+  m_LocalPosition: {x: -4.3085, y: 0.2527, z: -9.4248}
   m_LocalScale: {x: 0.052652005, y: 0.052133027, z: 0.15404767}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16406,8 +16406,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac716d709bffc484a866e94022436e9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParticipantID: 815
-  constructionType: 1
+  ParticipantID: 821
+  constructionType: 0
   currentMode: 1
   trainingStartDelay: 10
   requireMousePressForTraining: 0
@@ -16465,7 +16465,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2046492445}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b2ec5e9e03417246876a0ab015e9163, type: 3}
   m_Name: 
