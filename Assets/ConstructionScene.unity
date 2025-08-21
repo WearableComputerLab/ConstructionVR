@@ -16486,7 +16486,7 @@ MonoBehaviour:
   - {fileID: 1194587791}
   originalSphereColor: {r: 1, g: 1, b: 1, a: 1}
   collisionColor: {r: 0, g: 1, b: 0, a: 1}
-  userStudyInterface: {fileID: 0}
+  userStudyInterface: {fileID: 2046492448}
 --- !u!1 &2060179790
 GameObject:
   m_ObjectHideFlags: 0
